@@ -18,9 +18,14 @@ async def root():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_methods=["POST", "OPTIONS"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://phishdetector-frontend.onrender.com",  # ← URL do seu frontend aqui
+        "*"  # temporário para testar
+    ],
+    allow_methods=["POST", "OPTIONS", "GET"],
     allow_headers=["*"],
+    allow_credentials=False,
 )
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
