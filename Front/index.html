@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — Detector de Phishing</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style/style.css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="badge">
+      <span class="badge-dot"></span>
+      REAL-TIME ANALYSIS
+    </div>
+    <h1>PHISH<span>GUARD</span></h1>
+    <p class="subtitle">Paste any suspicious message — email, SMS, WhatsApp — and the AI ​​will analyze whether it's a phishing attempt.</p>
+  </header>
+
+  <!-- Input -->
+  <div id="input-section">
+    <div class="card">
+      <div class="card-label">Message to analyze</div>
+      <textarea id="msg-input" placeholder="Paste the received message here...&#10;&#10;Ex: 'Your bank has detected suspicious activity. Click here to verify your account: ...'"></textarea>
+      <div class="examples">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;align-self:center;">EXEMPLOS:</span>
+        <button class="example-btn" onclick="loadExample('phishing')">🎣 Phishing bancário</button>
+        <button class="example-btn" onclick="loadExample('prize')">🏆 Prêmio falso</button>
+        <button class="example-btn" onclick="loadExample('safe')">✅ Mensagem legítima</button>
+      </div>
+    </div>
+
+    <button class="btn-analyze" id="btn-analyze" onclick="analyze()">
+      ⚡ ANALYZE MESSAGE
+    </button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    ANALYZING THREATS
+  </div>
+
+  <!-- Result -->
+  <div class="result" id="result">
+    <div class="verdict-bar" id="verdict-bar">
+      <div class="verdict-indicator" id="verdict-indicator"></div>
+      <div class="verdict-content">
+        <div class="verdict-tag" id="verdict-tag"></div>
+        <div class="verdict-title" id="verdict-title"></div>
+        <div class="verdict-summary" id="verdict-summary"></div>
+      </div>
+    </div>
+
+    <div class="risk-section">
+      <div class="risk-label">RISK LEVEL</div>
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-bg">
+          <div class="risk-bar-fill" id="risk-bar-fill"></div>
+        </div>
+        <div class="risk-pct" id="risk-pct">0%</div>
+      </div>
+    </div>
+
+    <div class="signals-section">
+      <div class="signals-title">SIGNALS DETECTED</div>
+      <ul class="signal-list" id="signal-list"></ul>
+    </div>
+
+    <div class="tips" id="tips-box">
+      <div class="tips-title">// RECOMMENDATION</div>
+      <div class="tips-text" id="tips-text"></div>
+    </div>
+
+    <button class="btn-reset" onclick="reset()">← ANALYZE ANOTHER MESSAGE</button>
+  </div>
+
+  <footer>
+    <span>PHISHGUARD v1.0</span>
+    <span>POWERED BY CLAUDE AI</span>
+    <span>⚠️ NÃO COMPARTILHE DADOS PESSOAIS</span>
+  </footer>
+</div>
+
+<script src="script/script.js"></script>
+</body>
+</html>
