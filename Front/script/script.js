@@ -3,38 +3,38 @@
 
 
 const examples = {
-  phishing: `Prezado cliente,
+  phishing: `Dear customer,
 
-Identificamos uma atividade suspeita em sua conta. Para evitar o bloqueio imediato, acesse o link abaixo e confirme seus dados bancários em até 24 horas:
-
+We have identified suspicious activity on your account. To avoid immediate blocking, please access the link below and confirm your bank details within 24 hours:
 🔗 http://banco-seguro-verificacao.xyz/confirmar
 
-Caso não realize a verificação, sua conta será suspensa permanentemente.
+If you do not complete the verification, your account will be permanently suspended.
 
-Atenciosamente,
-Equipe de Segurança — Banco do Brasil`,
+Sincerely,
+Security Team — Banco do Brasil`,
 
-  prize: `PARABÉNS!! 🎉🎉
+  prize: `CONGRATULATIONS!! 🎉🎉
 
-Você foi selecionado como GANHADOR do sorteio de R$15.000,00!
+You have been selected as the WINNER of the R$15,000.00 raffle!
 
-Para receber seu prêmio, envie seus dados (CPF, nome completo, conta bancária) para o WhatsApp: (11) 99999-0000
+To receive your prize, send your information (ID, full name, bank account) to WhatsApp: (11) 99999-0000
 
-⚠️ Oferta válida apenas HOJE. Não perca!
+⚠️ Offer valid only TODAY. Don't miss out!
 
-— Promoção Nacional 2024`,
+— National Promotion 2024`,
 
-  safe: `Olá! Sua encomenda foi despachada com sucesso.
+  safe: `Hello! Your order has been successfully shipped.
 
-Código de rastreio: BR123456789BR
-Previsão de entrega: 3 a 5 dias úteis
+Tracking code: BR123456789BR
+Estimated delivery: 3 to 5 business days
 
-Acompanhe pelo site oficial dos Correios: correios.com.br
+Track your order on the official Correios website: correios.com.br
 
-Em caso de dúvidas, acesse nossa central de atendimento no app ou site.
+If you have any questions, please access our customer service center on the app or website.
 
-Obrigado pela compra!
-— Loja Magazine`
+Thank you for your purchase!
+
+— Magazine Store`
 };
 
 function loadExample(type) {
@@ -45,7 +45,7 @@ function loadExample(type) {
 async function analyze() {
   const text = document.getElementById('msg-input').value.trim();
   if (!text) {
-    showError('Por favor, cole uma mensagem para analisar.');
+    showError('Please paste a message for review.');
     return;
   }
 
@@ -58,18 +58,18 @@ async function analyze() {
     const response = await fetch("https://phishdetector-5rk0.onrender.com/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }) // ✅ variável correta
+      body: JSON.stringify({ message: text }) //correct variable
     });
 
-    if (!response.ok) throw new Error('Erro na API: ' + response.status);
+    if (!response.ok) throw new Error('API error: ' + response.status);
 
-    const result = await response.json(); // ✅ uma vez só, já vem o objeto pronto
+    const result = await response.json(); // One time only, and the item arrives ready-made.
 
     showResult(result);
   } catch (err) {
     document.getElementById('input-section').style.display = 'block';
     document.getElementById('loading').classList.remove('visible');
-    showError('Erro ao analisar. Verifique sua conexão e tente novamente.');
+    showError('Error. Please check your connection and try again.');
     console.error(err);
   }
 }
@@ -82,7 +82,7 @@ function showResult(r) {
   const cls = isPhish ? 'danger' : isSusp ? 'warn' : 'safe';
 
   const icons = { danger: '🚨', warn: '⚠️', safe: '✅' };
-  const labels = { danger: 'PHISHING DETECTADO', warn: 'MENSAGEM SUSPEITA', safe: 'MENSAGEM SEGURA' };
+  const labels = { danger: 'PHISHING DETECTED', warn: 'SUSPICIOUS MESSAGE', safe: 'SECURE MESSAGE' };
 
   document.getElementById('verdict-indicator').className = `verdict-indicator ${cls}`;
   document.getElementById('verdict-tag').className = `verdict-tag ${cls}`;
