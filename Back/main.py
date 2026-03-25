@@ -14,14 +14,14 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
-    return {"status": "PhishGuard rodando"}
+    return {"status": "PhishDetector running"}
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://phishdetector-frontend.onrender.com",  # ← URL do seu frontend aqui
-        "*"  # temporário para testar
+        "https://phishdetector-frontend.onrender.com",  
+        "*" 
     ],
     allow_methods=["POST", "OPTIONS", "GET"],
     allow_headers=["*"],
@@ -35,51 +35,51 @@ LIMITE_RPM = 4
 LIMITE_RPD = 18
 MAX_CHARS = 1500
 
-requisicoes_por_minuto = defaultdict(list)
-contador_diario = {"total": 0, "data": time.strftime("%Y-%m-%d")}
+requests_per_minute = defaultdict(list)
+daily_counter = {"total": 0, "data": time.strftime("%Y-%m-%d")}
 
-def checar_limites(ip: str, tamanho_msg: int):
-    agora = time.time()
+def check_limits(ip: str, message_size: int):
+    time_now = time.time()
 
-    hoje = time.strftime("%Y-%m-%d")
-    if contador_diario["data"] != hoje:
-        contador_diario["total"] = 0
-        contador_diario["data"] = hoje
+    today = time.strftime("%Y-%m-%d")
+    if daily_counter["data"] != today:
+        daily_counter["total"] = 0
+        daily_counter["data"] = today
 
-    if contador_diario["total"] >= LIMITE_RPD:
-        raise HTTPException(status_code=429, detail="Limite diário atingido. Tente novamente amanhã.")
+    if daily_counter["total"] >= LIMITE_RPD:
+        raise HTTPException(status_code=429, detail="Daily limit reached. Please try again tomorrow.")
 
-    minuto_atras = agora - 60
-    requisicoes_por_minuto[ip] = [t for t in requisicoes_por_minuto[ip] if t > minuto_atras]
-    if len(requisicoes_por_minuto[ip]) >= LIMITE_RPM:
-        raise HTTPException(status_code=429, detail="Muitas requisições. Aguarde 1 minuto e tente novamente.")
+    minute_ago = time_now - 60
+    requests_per_minute[ip] = [t for t in requests_per_minute[ip] if t > minute_ago]
+    if len(requests_per_minute[ip]) >= LIMITE_RPM:
+        raise HTTPException(status_code=429, detail="Too many requests. Please wait 1 minute and try again.")
 
-    if tamanho_msg > MAX_CHARS:
-        raise HTTPException(status_code=400, detail=f"Mensagem muito longa. Máximo {MAX_CHARS} caracteres.")
+    if message_size > MAX_CHARS:
+        raise HTTPException(status_code=400, detail=f"Very long message. Maximum {MAX_CHARS} characters.")
 
-    requisicoes_por_minuto[ip].append(agora)
-    contador_diario["total"] += 1
+    requests_per_minute[ip].append(time_now)
+    daily_counter["total"] += 1
 # ──────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """Você é um especialista em segurança digital focado em detectar phishing e fraudes. Analise a mensagem do usuário e responda APENAS com um JSON válido, sem texto adicional, sem markdown, sem blocos de código.
+SYSTEM_PROMPT = """You are a digital security expert focused on detecting phishing and fraud. Analyze the user's message and respond ONLY with valid JSON, without additional text, markdown, or code blocks.
 
-O JSON deve ter exatamente este formato:
+The JSON must have exactly this format:
 {
-  "verdict": "phishing" | "suspeito" | "seguro",
+  "verdict": "phishing" | "suspect" | "safe",
   "risk_score": 0-100,
-  "title": "título curto do veredicto em português",
-  "summary": "resumo em 1-2 frases explicando o resultado",
-  "signals": ["sinal 1", "sinal 2", "sinal 3"],
-  "recommendation": "recomendação prática de 2-3 frases para o usuário"
+  "title": "Short title of the verdict in English.",
+  "summary": "Summary in 1-2 sentences explaining the result.",
+  "signals": ["signal 1", "signal 2", "signal 3"],
+  "recommendation": "Practical recommendation of 2-3 sentences for the user."
 }
 
-Critérios:
-- "phishing": mensagem claramente fraudulenta, com urgência falsa, links suspeitos, pedidos de dados pessoais/bancários
-- "suspeito": mensagem duvidosa mas sem certeza de fraude
-- "seguro": mensagem legítima, sem sinais de fraude
-- risk_score: 0 = completamente seguro, 100 = phishing confirmado
-- signals: liste de 3 a 5 sinais específicos encontrados (ou ausência deles)
-- recommendation: oriente o usuário sobre o que fazer com essa mensagem"""
+Criteria:
+- "phishing": a clearly fraudulent message, with false urgency, suspicious links, and requests for personal/banking information.
+- "suspect": The message is dubious, but there's no certainty it's fraudulent.
+- "safe": Legitimate message, with no signs of fraud.
+- risk_score: 0 = completely safe, 100 = confirmed phishing
+- signals: List 3 to 5 specific signs found (or the absence thereof).
+- recommendation: Guide the user on what to do with this message."""
 
 
 class AnalyzeRequest(BaseModel):
@@ -89,7 +89,7 @@ class AnalyzeRequest(BaseModel):
 @app.post("/analyze")
 async def analyze(request: Request, body: AnalyzeRequest):
     ip = request.client.host
-    checar_limites(ip, len(body.message))
+    check_limits(ip, len(body.message))
 
     try:
         response = client.chat.completions.create(
@@ -108,8 +108,8 @@ async def analyze(request: Request, body: AnalyzeRequest):
 
     except json.JSONDecodeError as e:
         print("ERRO JSON:", e)
-        raise HTTPException(status_code=500, detail="Erro ao interpretar resposta da IA")
+        raise HTTPException(status_code=500, detail="Error interpreting AI response.")
 
     except Exception as e:
         print("ERRO GROQ:", e)
-        raise HTTPException(status_code=502, detail=f"Erro na API: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"API error: {str(e)}")
